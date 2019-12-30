@@ -1,26 +1,4 @@
-/*
- * Copyright (c) 2013-2019, Centre for Genomic Regulation (CRG).
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- *
- * This Source Code Form is "Incompatible With Secondary Licenses", as
- * defined by the Mozilla Public License, v. 2.0.
- *
- */
-
-
-/*
- * Proof of concept of a RNAseq pipeline implemented with Nextflow
- *
- * Authors:
- * - Paolo Di Tommaso <paolo.ditommaso@gmail.com>
- * - Emilio Palumbo <emiliopalumbo@gmail.com>
- * - Evan Floden <evanfloden@gmail.com>
- */
-
-
+ 
 /*
  * Default pipeline parameters. They can be overriden on the command line eg.
  * given `params.foo` specify on the run command line `--foo some_value`.
@@ -70,6 +48,7 @@ process quant {
 
     input:
     file index from index_ch
+    
     set pair_id, file(reads) from read_pairs_ch
 
     output:
@@ -100,24 +79,24 @@ process fastqc {
 }
 
 
-process multiqc {
-    publishDir params.outdir, mode:'copy'
-    
-    input:
-    file('data*/*') from quant_ch.mix(fastqc_ch).collect()
-    file(config) from multiqc_file
-
-    output:
-    file('multiqc_report.html') optional true
-
-    script:
-    """
-    cp $config/* .
-    echo "custom_logo: \$PWD/logo.png" >> multiqc_config.yaml
-    multiqc -v .
-    """
-}
-
+/*process multiqc {
+*   publishDir params.outdir, mode:'copy'
+*    
+*    input:
+*    file('data*/*') from quant_ch.mix(fastqc_ch).collect()
+*    file(config) from multiqc_file
+*
+*    output:
+*    file('multiqc_report.html') optional true
+*
+*    script:
+*    """
+*    cp $config/* .
+*    echo "custom_logo: \$PWD/logo.png" >> multiqc_config.yaml
+*    multiqc -v .
+*    """
+*}
+*/
 workflow.onComplete {
 	log.info ( workflow.success ? "\nDone! Open the following report in your browser --> $params.outdir/multiqc_report.html\n" : "Oops .. something went wrong" )
 }
